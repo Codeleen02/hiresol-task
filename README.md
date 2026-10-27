@@ -1,36 +1,105 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+# Clinic Appointment Booking API
 
-First, run the development server:
+A REST API built with Next.js App Router, JavaScript,
+MongoDB, Mongoose, and Zod for managing clinic appointment
+slots and patient bookings.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Create and list appointment slots
+- Filter slots by clinic and status
+- Cancel available appointment slots
+- Book available appointment slots
+- Prevent double booking with atomic database updates
+- Cancel bookings and release their slots
+- Validate request data with Zod
+- Return appropriate HTTP status codes
+- Use MongoDB transactions for booking operations
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Next.js App Router
+- JavaScript
+- MongoDB Atlas
+- Mongoose
+- Zod
+- Node.js test runner
 
-## Learn More
+## Setup
 
-To learn more about Next.js, take a look at the following resources:
+1. Install dependencies:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   npm install
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. Create a `.env.local` file in the project root:
 
-## Deploy on Vercel
+   MONGODB_URI=your_mongodb_connection_string
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. Start the development server:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   npm run dev
+
+The API runs at http://localhost:3000.
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | /api/slots | Create a slot |
+| GET | /api/slots | List slots |
+| PATCH | /api/slots/:id | Cancel an available slot |
+| POST | /api/bookings | Book a slot |
+| PATCH | /api/bookings/:id | Cancel a booking |
+
+### Create a slot
+
+POST /api/slots
+
+{
+  "clinicId": "clinic123",
+  "startTime": "2026-11-02T10:00:00.000Z",
+  "endTime": "2026-11-02T10:30:00.000Z"
+}
+
+### Book a slot
+
+POST /api/bookings
+
+{
+  "slotId": "YOUR_SLOT_ID",
+  "patientId": "patient123",
+  "patientName": "Test Patient"
+}
+
+### List available slots
+
+GET /api/slots?clinicId=clinic123&status=available
+
+### Cancel a slot
+
+PATCH /api/slots/YOUR_SLOT_ID
+
+### Cancel a booking
+
+PATCH /api/bookings/YOUR_BOOKING_ID
+
+## HTTP Status Codes
+
+- 200: Request succeeded
+- 201: Resource created
+- 400: Invalid request data
+- 404: Resource not found
+- 409: Resource conflict, such as an already-booked slot
+- 500: Unexpected server error
+
+## Run Tests
+
+npm test
+
+## Notes
+
+Booking operations use atomic slot updates to prevent two
+requests from reserving the same available slot. MongoDB
+transactions are used to keep booking records and slot
+status changes consistent.
